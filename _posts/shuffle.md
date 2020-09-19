@@ -1,6 +1,6 @@
 # How to shuffle a deck
 
-There is a question that had been on my mind a few years ago. Maybe it wasn't even a question, but a curisoity. Someone once told me that it takes 7 shuffles for a perfect shuffle. And this statement left me with far more questions than it did answers. First, how do you know that it's seven shuffles, and what does a perfect shuffle even mean? And more importantly, how do you come to these conclusions. It's hard for me to take for granted lore like this. First, I want to understand if 7 shuffles are enough to randomly mix a deck of cards, and second I want to know you determine such a fact.
+There is a question that had been on my mind a few years ago. Maybe it wasn't even a question, but a curiosity. Someone once told me that it takes 7 shuffles for a perfect shuffle. And this statement left me with far more questions than it did answers. First, how do you know that it's seven shuffles, and what does a perfect shuffle even mean? And more importantly, how do you come to these conclusions. It's hard for me to take for granted lore like this. First, I want to understand if 7 shuffles are enough to randomly mix a deck of cards, and second I want to know you determine such a fact.
 
 First let's talk about a "perfect" shuffle. We will construct a model to represent shuffling a deck of cards. A deck contains of 52 cards. Let's image that we have documented their order and placed a small tracking number on the top corner of each card. The deck of cards would be ordered as: 
 
@@ -27,7 +27,7 @@ Let's start by following the path the first card takes:
     0 Shuffles: [  1, 2,  3, 4, ..., 49, 50, 51, 52 ]
     1 Shuffle:  [ 27, 1, 28, 2, ..., 51, 25, 52, 26 ]
 
-After one shuffle, the first card went to the second position. If we would shuffle the deck again, you can then imagine that the first card is now where the 2 is, and then findout where the 2 would be placed after a shuffle (it's in the 4th position). This means that the 1 card would be in the 4th position after two shuffles. So far, the first card is taking the following path:
+After one shuffle, the first card went to the second position. If we would shuffle the deck again, you can then imagine that the first card is now where the 2 is, and then find out where the 2 would be placed after a shuffle (it's in the 4th position). This means that the 1 card would be in the 4th position after two shuffles. So far, the first card is taking the following path:
 
     1 -> 2 -> 4
 
@@ -35,16 +35,15 @@ To findout where the 1 card would be after three shuffles, we follow the same pa
 
     1 -> 2 -> 4 -> 8 -> 16 -> 32 -> ???
 
-Now the question is what happens to the 32th card when the deck is shuffled. The 16 card is in the bottom half of the deck, so it won't follow the same pattern as the top half where we just multipled their original position by 2. In the bottom half of the deck follows the same pattern as the top half except that we first subtrack by 26 (which is essentialy saying that the 27 card becomes the 1 card since it's on the top) and then multiply by 2 like with the top half, but then subtract one because bottom half of the deck is to the left of the top half after shuffling. This yields the pattern `2*(n - 26) - 1`. This formula isn't as easy to follow as `2n` for the top half, but it's a number that we can calculate. 
+Now the question is what happens to the 32th card when the deck is shuffled. The 16 card is in the bottom half of the deck, so it won't follow the same pattern as the top half where we just multiplied their original position by 2. In the bottom half of the deck follows the same pattern as the top half except that we first subtract by 26 (which is essentially saying that the 27 card becomes the 1 card since it's on the top) and then multiply by 2 like with the top half, but then subtract one because bottom half of the deck is to the left of the top half after shuffling. This yields the pattern `2*(n - 26) - 1`. This formula isn't as easy to follow as `2n` for the top half, but it's a number that we can calculate. 
 
 $$
-    1 + 2 = 3    
+    \sigma_{tb}(n) = 
+    \begin{cases}
+    \,2n & 1 \leq n \leq 26 \\
+    \,2(n-26)-1 & 27 \leq n \leq 52
+    \end{cases}
 $$
-
-    Top then bottom shuffling:
-    1. For 1 <= n <= 26, the resulting position is 2*n
-    2. For 27 <= n <= 52, the resulting position is 2*(n-26)-1.
-
 
 This means that the 32 card would go to position `2*(32 - 26) - 1 = 11`. So the next position would be in the 11 slot and since 11 is in the first half of the deck, the next position would be in the 22 slot. Continuing this process, we get the following path for the first card:
 
@@ -53,3 +52,33 @@ This means that the 32 card would go to position `2*(32 - 26) - 1 = 11`. So the 
 Note: After calculating the about 20 positions, I decided to write a program to calculate the rest for me.
 
 By following the first card, we calculated that it takes 52 shuffles before it eventual makes it back to the first position. You might also noticed that no numbers in the sequency above is repeated -- and no number could repeat, for if you had two numbers in that list that repeated then you would form an cycle (elaborate). From this we can conclude that it takes 52 "perfect" shuffles before deck is shuffled back to its original position.
+
+# Bottom First Shuffling
+
+It is entirely possible that someone would shuffle the bottom deck before the top deck. Recall that after one shuffle, the resulting orientation of cards is:
+
+     Bottom then Top: [ 1, 27, 2, 28, ..., 25, 51, 26, 52 ]
+
+A piecewise function for the operation is:
+
+$$
+    \sigma_{bt}(n) = 
+    \begin{cases}
+    \,2n - 1 & 1 \leq n \leq 26 \\
+    \,2(n-26) & 27 \leq n \leq 52
+    \end{cases}
+$$
+
+Calculating the cyclic-decomposition of the function, we have:
+
+    1: [1]
+    8: [2, 3, 5, 9, 17, 33, 14, 27]
+    8: [4, 7, 13, 25, 49, 46, 40, 28]
+    8: [6, 11, 21, 41, 30, 8, 15, 29]
+    8: [10, 19, 37, 22, 43, 34, 16, 31]
+    8: [12, 23, 45, 38, 24, 47, 42, 32]
+    2: [18, 35]
+    8: [20, 39, 26, 51, 50, 48, 44, 36]
+    1: [52]
+
+The least common multiple of these cycles is 8. This means that if you could perform a perfect shuffle, and remember to shuffle the bottom half of the deck before the top half, then you would reach your original position after merely eight shuffles.

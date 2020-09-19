@@ -8,9 +8,10 @@ const Blog = ({ post }) => {
       <Head>
         <title>Next.js Blog Example with Me.</title>
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/4.0.0/github-markdown.min.css" />
       </Head>
       <h1>{post.meta.title}</h1>
-      <div dangerouslySetInnerHTML={{ __html: post.content }} />
+      <div className="markdown-body article" dangerouslySetInnerHTML={{ __html: post.content }} />
     </>
   )
 }
